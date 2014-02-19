@@ -34,9 +34,9 @@ def capabilityFunction(listLine):
                 listCapability.append("")
             else:  listCapability.append(listLine[4])
     return listCapability    
-
+    
 def menu():
-    print("\t\t\t**************************************")
+    print( "\t\t\t**************************************")
     print( "\t\t\t     ANALIZADOR SEMANTICO")
     print( "\t\t\t  José Antonio Vélez Gómez")
     print( "\t\t\t  Leonel Fernando Ramirez  Gonzalez")
@@ -60,7 +60,7 @@ def removeEmpty (listSplit):
         if(elem != ""):
             listFile.append(elem)
     return listFile
-
+            
 def menuPrincipal(listD, nameCapability):
     if(listD == []): print ("\t\t\tNo exixten Devices con esa Capability")
 
@@ -78,8 +78,7 @@ def menuPrincipal(listD, nameCapability):
         sys.exit()
     else:
         menuPrincipal(listD, nameCapability)
-
-
+    
 def removeLines (file):
     head, *tail = file
     if ("<devices" in head):
@@ -87,16 +86,16 @@ def removeLines (file):
         listC = listCapability (nameCapability)
         number = len(listC)
         listFile = removeEmpty(tail)
-        device = Device("","","")
-        group = Group("")
-        listD = listDevice(listFile, device, group, listC, "", [], number, number)
+        
+        listD = listDevice(listFile, listC, number, number)
         menuPrincipal(listD, nameCapability)
     else: removeLines(tail)
+
 
 def listCapability (nameCapability):
     if (nameCapability == ""): return []
     else: return removeEmpty(my_split([nameCapability], [","," ",";","\""]))
-    
+   
 def my_split(text_list, delimiters):
     for delim in delimiters:
         split_result = []
@@ -105,8 +104,12 @@ def my_split(text_list, delimiters):
         text_list = split_result
     return text_list
 
-def listDevice(listFile, device, group, capabilityUser, fall_back, listFallBack, n1, n2):
+def listDevice(listFile,capabilityUser,n1, n2):
     lD = []
+    device = Device("","","")
+    group = Group("")
+    capability = Capability("","")
+    listFallBack = []
     for elem in listFile:
         listSplit = my_split([elem], ["<",">","="," ","\t","\n","\"","\\"])
         list1 = removeEmpty (listSplit)
@@ -120,19 +123,25 @@ def listDevice(listFile, device, group, capabilityUser, fall_back, listFallBack,
             idDevice = device.getIdDevice()
 
             if(idDevice == f_bDevice):
+                lD = lD+listFallBack
+                lD.append(idDevice)
                 listFallBack = listFallBack+[nameDevice]
-            else: listFallBack = []
+            else:
+                if(len(listFallBack) != 0):
+                    lD = lD+listFallBack
+                    lD.append(nameDevice)
+                listFallBack = []
             n1 = n2
         elif(headList1 == "group"):
             group.setGroup(groupFunction(list1))
         elif(headList1 == "capability"):
-            capability = Capability("","")
             capability.setCapability(capabilityFunction(list1))
             nameCapability = capability.getNameCapability()
             idDevice = device.getIdDevice()
             if(nameCapability in capabilityUser):
                 if(n1 <= 1):
-                    lD.append(listFallBack+[idDevice])
+                    lD = lD+listFallBack
+                    lD.append(idDevice)
                     listFallBack = []
                     n1 = n2
                 else: n1 = (n1-1)
