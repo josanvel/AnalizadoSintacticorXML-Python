@@ -17,6 +17,24 @@ def deviceFunction(listLine):
             listDevice.append(listLine[listLine.index("fall_back")+1])
     return listDevice
 
+def groupFunction(listLine):
+    listGroup = []
+    for elem in listLine:
+        if (elem == "id"):
+            listGroup.append(listLine[2])
+    return listGroup
+
+def capabilityFunction(listLine):
+    listCapability = []
+    for elem in listLine:
+        if (elem == "name"):
+            listCapability.append(listLine[2])
+        elif (elem == "value"):
+            if(listLine[4] == "/"):
+                listCapability.append("")
+            else:  listCapability.append(listLine[4])
+    return listCapability    
+
 def menu():
     print("\t\t\t**************************************")
     print( "\t\t\t     ANALIZADOR SEMANTICO")
@@ -67,6 +85,12 @@ def removeLines (file):
     if ("<devices" in head):
         nameCapability = input("\nIngrese todas los Capability que desee consultar en el Device: ")
         listC = listCapability (nameCapability)
+        number = len(listC)
+        listFile = removeEmpty(tail)
+        device = Device("","","")
+        group = Group("")
+        listD = listDevice(listFile, device, group, listC, "", [], number, number)
+        menuPrincipal(listD, nameCapability)
     else: removeLines(tail)
 
 def listCapability (nameCapability):
